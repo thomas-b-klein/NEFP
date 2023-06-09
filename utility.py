@@ -5,7 +5,7 @@ from functools import wraps
 def make_implicit(func):
 
     @wraps(func)
-    def implicit_func(x,y):
-        return func(x)-y
+    def implicit_func(x,y,*args):
+        return func(x,*args)-y
 
     return implicit_func
