@@ -10,11 +10,14 @@ class OBLIQUE():
     #all angles input and output are in radians unless specifically stated
     rad = True
 
-    def __init__(self, M1, delta, weak = True, gamma=1.4):
+    def __init__(self, M1, delta, gamma=1.4):
         self.M1 = np.array(M1)
         self.delta = delta
-        self.weak = weak
         self.gamma = gamma
+        
+    @property
+    def weak(self):
+        return True if self.M2 > 1 else False
 
     @property
     def M2(self):
@@ -33,13 +36,15 @@ class OBLIQUE():
 
     @property    
     def beta(self):
-        #!FIX: change function to iterate Newton's method - slightly faster
         #wave angle of the flow due to the shockwave
         weak = 1 if self.weak else 0
-        lam = np.sqrt( (self.M1**2-1)**2 - 3*(1+(self.gamma-1)*self.M1**2/2)*(1+(self.gamma+1)*self.M1**2/2)*np.tan(self.delta)**2)
-        chi = ( (self.M1**2 - 1)**3 - 9*(1+(self.gamma-1)*self.M1**2/2)*(1+(self.gamma-1)*self.M1**2/2 + (self.gamma+1)*self.M1**4/4) * np.tan(self.delta)**2 ) / lam**3
-        beta = np.arctan(((self.M1**2 - 1) + 2*lam*np.cos((4*np.pi*weak + np.arccos(chi))/3)) / (3*(1 + (self.gamma-1)*self.M1**2/2)*np.tan(self.delta)))
-        return beta
+        A = self.M1**2 - 1
+        B = 0.5*(self.gamma + 1) * self.M1**4 * np.tan(self.delta)
+        C = (1 + 0.5*(self.gamma + 1)*self.M1**2)*np.tan(self.delta)
+        coeffs = [1, C, -A, (B - A*C)]
+        roots = np.arctan(1 / np.roots(coeffs))
+        betas = sorted(roots.remove(min(roots)))
+        return min(betas) if weak else max(betas)
 
     @property
     def p2p1(self):
@@ -64,12 +69,9 @@ class OBLIQUE():
     @classmethod
     def from_M1n(cls, M1, M1n, gamma=1.4):
         beta = np.arcsin( M1n / M1 )
-        return cls.from_beta(M1, beta, gamma)
+        return cls.from_beta(M1, beta, gamma=gamma)
 
     @classmethod
     def from_beta(cls, M1, beta, gamma=1.4):
-        #!FIX: Find out how to determine whether a shock is strong or weak
         delta = np.arctan( 2*(M1**2*np.sin(beta)**2 - 1) / (np.tan(beta) * ( 2 + M1**2*(gamma + np.cos(2*beta)) ) ) )
-        weak = None
-        return cls(M1, delta, weak, gamma)
-    
+        return cls(M1, delta, gamma=gamma)
