@@ -43,7 +43,7 @@ class OBLIQUE():
         C = (1 + 0.5*(self.gamma + 1)*self.M1**2)*np.tan(self.delta)
         coeffs = [1, C, -A, (B - A*C)]
         roots = np.arctan(1 / np.roots(coeffs))
-        betas = sorted(roots.remove(min(roots)))
+        betas = sorted(i for i in roots if i > 0)
         return min(betas) if weak else max(betas)
 
     @property

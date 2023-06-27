@@ -87,7 +87,7 @@ class ISENTROPIC():
         if any(i <= 0.0 or i < 1.0 for i in aas): raise ValueError('A/A* must be between 0 and 1.') 
         elif any(i == 1.0 for i in aas): M = 1.0
         else: 
-            est = 0.5 if subsonic else 2.0
+            est = 0.1 if subsonic else 2.0
             eq = make_implicit(aas_func)
             M = [newton(eq, est, args= (aas_i, gamma)) for aas_i in aas]   
         return cls(M, gamma)
@@ -113,4 +113,3 @@ class ISENTROPIC():
         eq = make_implicit(pm_func)
         M = [newton(eq, 2.0, args = (pm_i, gamma)) for pm_i in pm]
         return cls(M, gamma)
-
