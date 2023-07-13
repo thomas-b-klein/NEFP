@@ -12,6 +12,6 @@ def make_implicit(func):
 
 # Useful Functions
 
-def within(x, bounds, include_bounds = True):
+def within(x, bounds, include_bounds = False):
     if include_bounds: return True if min(bounds) <= x <= max(bounds) else False
     if not include_bounds: return True if min(bounds) < x < max(bounds) else False

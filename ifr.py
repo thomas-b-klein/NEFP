@@ -84,8 +84,7 @@ class ISENTROPIC():
     def from_aas(cls, aas, gamma = 1.4, subsonic = False): #m_aas
         if type(aas) == int or type(aas) == float: aas = np.array([aas])
         else: aas = np.array(aas)
-        if any(i <= 0.0 or i < 1.0 for i in aas): raise ValueError('A/A* must be between 0 and 1.') 
-        elif any(i == 1.0 for i in aas): M = 1.0
+        if any(i <= 0.0 or i < 1.0 for i in aas): raise ValueError('A/A* must be greater or equal to 1.') 
         else: 
             est = 0.1 if subsonic else 2.0
             eq = make_implicit(aas_func)
